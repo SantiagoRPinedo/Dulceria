@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content%}
+<div class="container">
+    <!--REGISTRAR LAS VENTAS-->
+    <div class="row align-items-start">
+        <div class="col" id="colVen">
+            <div class="ventas">
+                <H1>Proveedores</H1>
+                <!--TABLA PARA LOS ELEMENTOS DE LAS VENTAS-->
+                <table class="table">
+                    {%for i in cons%}
+                    <tbody>
+                        <tr>
+                            <th scope="row">{{i[0]}}</th>
+                            <td>{{i[2]}}</td>
+                            <td>{{i[1]}}</td>
+                        </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{%endblock%}

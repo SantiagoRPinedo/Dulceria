@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block content%}
+    <div class="container">
+        <div class="row align-items-start">
+            <div class="col" id="colVen">
+                <div class="ventas">
+                    <H1>Dulces</H1>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Dulce</th>
+                            <th scope="col">Costo</th>
+                            <th scope="col">Disponibles</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {%for c in consultad%}
+                            <tr>
+                                <th scope="row">{{c[0]}}</th>
+                                <td>{{c[1]}}</td>
+                                <td>{{c[2]}} $</td>
+                                <td>{{c[3]}}</td>
+                            </tr>
+                        {%endfor%}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col" id="colCons">
+                <div class="ventas">
+                    <h1>Ventas del dia</h1>
+                    <table class="table table-borderless">
+                        <thead>
+                        <tr>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Producto</th>
+                            <th scope="col">Cantiadad</th>
+                            <th scope="col">Total</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {%for i in consVenD%}
+                            <tr>
+                                <th scope="row">{{i[1]}}</th>
+                                <td>{{i[2]}}</td>
+                                <td>{{i[3]}}</td>
+                                <td>{{i[4]}}$</td>
+                            </tr>
+                        {%endfor%}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="row align-items-start">
+        <div class="col" id="colVen">
+          <div class="ventas">
+            <h1>Deudas</h1>
+            <table class="table table-borderless">
+                <thead>
+                <tr>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Monto</th>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Pagado</th>
+                </tr>
+                </thead>
+                <tbody>
+                {%for i in consdeu%}
+                    <tr>
+                        <th scope="row">{{i[1]}}</th>
+                        <td>{{i[2]}}$</td>
+                        <td>{{i[3]}}</td>
+                        <td>{{i[4]}}</td>
+                    </tr>
+                {%endfor%}
+                </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="col" id="colCons">
+            <div class="ventas">
+                <h1>Clientes</h1>
+                <table class="table table-borderless">
+                    <thead>
+                    <tr>
+                        <th scope="col">Cliente</th>
+                        <th scope="col">Deuda total</th>
+                        <th scope="col">Telefono</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {%for i in clientes%}
+                        <tr>
+                            <th scope="row">{{i[0]}}</th>
+                            <td>{{i[1]}}</td>
+                            <td>{{i[2]}}</td>
+                        </tr>
+                    {%endfor%}
+                    </tbody>
+                </table>
+                <div>
+                    <form method="post">
+                        <input type="submit" value="Actualiar deudas"/>
+                    </form>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+{%endblock%}

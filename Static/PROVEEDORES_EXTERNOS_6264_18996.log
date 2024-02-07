@@ -1,0 +1,32 @@
+
+
+ Archivo LOG abierto en 06/03/23 08:33:33
+
+Número total de archivos=1
+
+Archivo de Datos: provedores.dat
+
+Archivo Log: PROVEEDORES_EXTERNOS_6264_18996.log
+
+
+
+ Archivo LOG abierto en 06/03/23 08:33:33
+
+Archivo de Errores: PROVEEDORES_EXTERNOS_6264_18996.bad
+
+Definiciones de Campo para la tabla PROVEEDORES_EXTERNOS
+  Formato de registro DELIMITED BY NEWLINE
+  Los datos del archivo tienen el mismo formato endian que la plataforma
+  Rechazar filas con todos los campos nulos
+
+  Campos del Origen de Datos: 
+
+    NOMBRE_PROVEEDOR                CHAR (100)
+      Terminado en ","
+      Recortar espacio en blanco igual que el cargador SQL
+    DIRECCION                       CHAR (200)
+      Terminado en ","
+      Recortar espacio en blanco igual que el cargador SQL
+    NUMERO_CONTACTO                 CHAR (20)
+      Terminado en ","
+      Recortar espacio en blanco igual que el cargador SQL

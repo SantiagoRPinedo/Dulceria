@@ -1,0 +1,370 @@
+CREATE TABLE productos (
+  id_producto NUMBER(10) PRIMARY KEY,
+  nombre VARCHAR2(50) NOT NULL,
+  precio NUMBER(10,2) NOT NULL,
+  cantidad INT NOT NULL
+);
+
+CREATE TABLE ventas (
+  id_venta NUMBER(10) PRIMARY KEY,
+  fecha_venta DATE DEFAULT SYSDATE,
+  cliente VARCHAR(50) NOT NULL,
+  total NUMBER(10,2) NOT NULL
+);
+
+CREATE TABLE detalle_venta (
+  id_detalle NUMBER(10) PRIMARY KEY,
+  id_venta NUMBER(10) NOT NULL,
+  id_producto NUMBER(10) NOT NULL,
+  cantidad NUMBER(10) NOT NULL,
+  precio NUMBER(10,2) NOT NULL,
+  CONSTRAINT fk_venta FOREIGN KEY (id_venta) REFERENCES ventas(id_venta),
+  CONSTRAINT fk_producto FOREIGN KEY (id_producto) REFERENCES productos(id_producto)
+);
+
+CREATE TABLE deudas (
+  id_deuda NUMBER(10) PRIMARY KEY,
+  cliente_id NUMBER(10) NOT NULL,
+  monto NUMBER(10,2) NOT NULL,
+  fecha_deuda DATE DEFAULT SYSDATE,
+  pagada CHAR(1) DEFAULT 'N' CHECK (pagada IN ('S','N')),
+  CONSTRAINT fk_deudas_clientes FOREIGN KEY (cliente_id)
+  REFERENCES clientes (id_cliente)
+);
+
+
+CREATE TABLE clientes (
+  id_cliente NUMBER(10) PRIMARY KEY,
+  cliente_obj ClienteType
+);
+
+CREATE TYPE ClienteType AS OBJECT (
+  nombre VARCHAR2(50),
+  direccion VARCHAR2(100),
+  telefono VARCHAR2(20),
+  deudat   NUMBER(10,2)
+);
+
+/* -----------------SECUENCIAS -------------*/
+GRANT CREATE SEQUENCE TO nombre_usuario;
+
+desde dulceria
+CREATE OR REPLACE SEQUENCE seq_id_producto
+  START WITH 10
+  INCREMENT BY 1
+  NOCACHE
+  NOCYCLE;
+
+CREATE SEQUENCE seq_id_deuda
+  START WITH 1
+  INCREMENT BY 1
+  NOCACHE
+  NOCYCLE;
+
+  CREATE SEQUENCE seq_id_venta
+  START WITH 1
+  INCREMENT BY 1
+  NOCACHE
+  NOCYCLE;
+
+  CREATE SEQUENCE seq_id_detalle
+  START WITH 1
+  INCREMENT BY 1
+  NOCACHE
+  NOCYCLE;
+
+  CREATE SEQUENCE seq_id_cliente
+  START WITH 1
+  INCREMENT BY 1
+  NOCACHE
+  NOCYCLE;
+
+reiniciar secuencia 
+
+ALTER SEQUENCE seq_id_deuda RESTART;
+
+
+insert into deudas(id_deuda,monto,fecha_deuda,pagada,cliente)
+  2  values(seq_id_deuda.NEXTVAL,10,SYSDATE,'N','Santiago');
+
+/*----------VISTAS-----------------*/
+
+CREATE VIEW detalle_venta_con_clientes_y_productos AS
+SELECT dv.id_detalle, v.cliente, p.nombre, dv.cantidad, dv.precio
+FROM detalle_venta dv
+JOIN ventas v ON dv.id_venta = v.id_venta
+JOIN productos p ON dv.id_producto = p.id_producto;
+
+SELECT SUM(precio) AS total_vendido
+  FROM detalle_venta_con_clientes_y_productos
+  WHERE id_venta=6;
+
+select * from detalle_venta_con_clientes_y_productos;
+
+/*---------------TABLAS TEMPORALES------------------*/
+
+CREATE GLOBAL TEMPORARY TABLE ventas_diarias (
+fecha_venta DATE,
+cliente VARCHAR2(50),
+nombre VARCHAR2(50),
+cantidad_vendida NUMBER(10),
+total_vendido NUMBER(10,2)
+);
+
+INSERT INTO ventas_diarias (fecha_venta,cliente, nombre, cantidad_vendida, total_vendido)
+SELECT
+TRUNC(ventas.fecha_venta),
+ventas.cliente,
+productos.nombre,
+SUM(detalle_venta.cantidad) AS cantidad_vendida,
+SUM(detalle_venta.precio) AS total_vendido
+FROM ventas
+JOIN detalle_venta ON ventas.id_venta = detalle_venta.id_venta
+JOIN productos ON detalle_venta.id_producto = productos.id_producto
+where ventas.fecha_venta = TRUNC(SYSDATE)
+GROUP BY ventas.fecha_venta, productos.nombre,ventas.cliente;
+
+
+/*-------------------TABLA TEMPORAL Productos estrella-------------------*/
+
+CREATE GLOBAL TEMPORARY TABLE productos_estrella(
+nombre VARCHAR2(50),
+cantidad_vendida NUMBER(10),
+total_vendido NUMBER(10,2)
+);
+
+INSERT INTO productos_estrella (nombre, cantidad_vendida, total_vendido)
+SELECT 
+  nombre,
+  SUM(cantidad) AS cantidad_vendida,
+  SUM(precio) AS total_vendido
+FROM (
+  SELECT 
+    productos.nombre,
+    detalle_venta.cantidad,
+    detalle_venta.precio
+  FROM ventas
+  JOIN detalle_venta ON ventas.id_venta = detalle_venta.id_venta
+  JOIN productos ON detalle_venta.id_producto = productos.id_producto
+)
+GROUP BY nombre
+ORDER BY cantidad_vendida DESC
+FETCH FIRST 3 ROWS ONLY;
+
+/*------------- TRIGGER PARA DECREMENTAR PRODUCTOS AL INSERTAR EN DETALLE----------------*/
+
+CREATE OR REPLACE TRIGGER decrementar_cantidad_productos
+AFTER INSERT ON detalle_venta
+FOR EACH ROW
+BEGIN
+  UPDATE productos
+  SET productos.cantidad = productos.cantidad - :NEW.cantidad
+  WHERE productos.id_producto = :NEW.id_producto;
+END;
+/
+
+/* --------------------- SINONIMOS PARA LA BASE DE DATOS------------------------------*/
+CREATE SYNONYM Santiago.dulces
+FOR dulceria.productos;
+CREATE SYNONYM Santiago.ventas
+FOR dulceria.ventas;
+CREATE SYNONYM Santiago.deudas
+FOR dulceria.deudas;
+CREATE SYNONYM Santiago.detalle
+FOR dulceria.detalle_venta;
+
+CREATE SYNONYM SYSTEM.dulces
+FOR dulceria.productos;
+CREATE SYNONYM SYSTEM.ventas
+FOR dulceria.ventas;
+CREATE SYNONYM SYSTEM.deudas
+FOR dulceria.deudas;
+CREATE SYNONYM SYSTEM.detalle
+FOR dulceria.detalle_venta;
+
+CREATE SYNONYM administrador.dulces
+FOR dulceria.productos;
+CREATE SYNONYM administrador.ventas
+FOR dulceria.ventas;
+CREATE SYNONYM administrador.deudas
+FOR dulceria.deudas;
+CREATE SYNONYM administrador.detalle
+FOR dulceria.detalle_venta;
+
+CREATE SYNONYM dulceria.dulces
+FOR dulceria.productos;
+CREATE SYNONYM dulceria.ventas
+FOR dulceria.ventas;
+CREATE SYNONYM dulceria.deudas
+FOR dulceria.deudas;
+CREATE SYNONYM dulceria.detalle
+FOR dulceria.detalle_venta;
+
+/*----------------------CREACION DE ROLES Y PERFILES----------------------------*/
+
+CREATE ROLE vendedor;
+
+GRANT INSERT ON dulceria.ventas TO vendedor;
+GRANT SELECT ON dulceria.ventas TO vendedor;
+GRANT INSERT ON dulceria.detalle_venta TO vendedor;
+GRANT SELECT ON dulceria.detalle_venta TO vendedor;
+GRANT SELECT ON dulceria.deudas TO vendedor;
+GRANT UPDATE ON dulceria.deudas TO vendedor;
+GRANT INSERT ON dulceria.deudas TO vendedor;
+GRANT SELECT ON dulceria.productos TO vendedor;
+GRANT SELECT ON dulceria.ventas_diarias TO vendedor;
+
+
+
+CREATE PROFILE administrador LIMIT
+    SESSIONS_PER_USER 10
+    CPU_PER_SESSION 10000
+    CPU_PER_CALL 1000
+    CONNECT_TIME 180
+    IDLE_TIME 30;
+
+ALTER USER administrador PROFILE administrador;
+
+/*-------------------------------CREAR FUNCION CALCULAR GANANCIAS-------------------------------*/
+CREATE OR REPLACE FUNCTION CalcularGanancias(p_fecha_inicio IN DATE, p_fecha_fin IN DATE) RETURN NUMBER IS
+  total_ganancias NUMBER(10,2);
+  v_total_ventas NUMBER(10,2);
+  v_total_costos NUMBER(10,2);
+BEGIN
+  -- Calcular el total de ventas en el rango de fechas especificado
+  SELECT SUM(total) INTO v_total_ventas
+  FROM ventas
+  WHERE fecha_venta BETWEEN p_fecha_inicio AND p_fecha_fin;
+  
+  -- Calcular las ganancias
+  total_ganancias := v_total_ventas ;
+
+  RETURN total_ganancias;
+END CalcularGanancias;
+/
+
+/*---------------------------CREAR PROCEDIMIENTO TOTAL ADEUDADO POR ALGUIEN----------------------------*/
+
+CREATE OR REPLACE PROCEDURE obtener_saldo_deudas IS
+BEGIN
+  UPDATE clientes c
+  SET c.cliente_obj.deudat = (SELECT COALESCE(SUM(d.monto),0) FROM deudas d WHERE d.cliente_id = c.id_cliente);
+  COMMIT;
+END;
+/
+
+EXECUTE obtener_saldo_deudas;
+
+CALL obtener_saldo_deudas;
+
+/*---------------------------------------Paquete de secuencias----------------------------------------------*/
+CREATE OR REPLACE PACKAGE pkg_secuencias IS
+  -- Secuencia para el ID de producto
+  PROCEDURE nextval_seq_id_producto;
+
+  -- Secuencia para el ID de deuda
+  PROCEDURE nextval_seq_id_deuda;
+
+  -- Secuencia para el ID de venta
+  PROCEDURE nextval_seq_id_venta;
+
+  -- Secuencia para el ID de detalle
+  PROCEDURE nextval_seq_id_detalle;
+
+  -- Secuencia para el ID de cliente
+  PROCEDURE nextval_seq_id_cliente;
+END pkg_secuencias;
+/
+
+CREATE OR REPLACE PACKAGE BODY pkg_secuencias IS
+  -- Secuencia para el ID de producto
+  PROCEDURE nextval_seq_id_producto IS
+    v_id NUMBER;
+  BEGIN
+    SELECT seq_id_producto.NEXTVAL INTO v_id FROM DUAL;
+  END nextval_seq_id_producto;
+
+  -- Secuencia para el ID de deuda
+  PROCEDURE nextval_seq_id_deuda IS
+    v_id NUMBER;
+  BEGIN
+    SELECT seq_id_deuda.NEXTVAL INTO v_id FROM DUAL;
+  END nextval_seq_id_deuda;
+
+  -- Secuencia para el ID de venta
+  PROCEDURE nextval_seq_id_venta IS
+    v_id NUMBER;
+  BEGIN
+    SELECT seq_id_venta.NEXTVAL INTO v_id FROM DUAL;
+  END nextval_seq_id_venta;
+
+  -- Secuencia para el ID de detalle
+  PROCEDURE nextval_seq_id_detalle IS
+    v_id NUMBER;
+  BEGIN
+    SELECT seq_id_detalle.NEXTVAL INTO v_id FROM DUAL;
+  END nextval_seq_id_detalle;
+
+  -- Secuencia para el ID de cliente
+  PROCEDURE nextval_seq_id_cliente IS
+    v_id NUMBER;
+  BEGIN
+    SELECT seq_id_cliente.NEXTVAL INTO v_id FROM DUAL;
+  END nextval_seq_id_cliente;
+END pkg_secuencias;
+/
+
+
+/*----------INSERTAR USANDO SECUENCIAS DEL PAQUETE----------------*/
+            DECLARE
+            v_id_producto NUMBER;
+            BEGIN
+            pkg_secuencias.nextval_seq_id_producto;
+            SELECT seq_id_producto.CURRVAL INTO v_id_producto FROM DUAL;
+        
+            INSERT INTO productos (id_producto, nombre, precio, cantidad)
+            VALUES (v_id_producto, :1, :2, :3);
+            END;
+
+/*--------------Tabla externa de proveedores----------------*/
+CREATE DIRECTORY directorio_externo AS 'E:\todo\2023A\BasesDeDatos\Proyecto\proyecto\Static';
+GRANT READ, WRITE ON DIRECTORY directorio_externo TO dulceria;
+
+CREATE TABLE proveedores_externos
+(
+  nombre_proveedor VARCHAR2(100),
+  direccion VARCHAR2(200),
+  numero_contacto VARCHAR2(20)
+)
+ORGANIZATION EXTERNAL
+( 
+  TYPE ORACLE_LOADER
+  DEFAULT DIRECTORY  directorio_externo-- Reemplaza con el nombre del directorio externo
+  ACCESS PARAMETERS
+  ( 
+    RECORDS DELIMITED BY NEWLINE
+    FIELDS TERMINATED BY ',' -- Los campos están separados por comas en el archivo
+    MISSING FIELD VALUES ARE NULL
+    REJECT ROWS WITH ALL NULL FIELDS
+    (
+      nombre_proveedor CHAR(100),
+      direccion CHAR(200),
+      numero_contacto CHAR(20)
+    )
+  )
+  LOCATION ('provedores.dat') -- Reemplaza con el nombre del archivo externo
+);
+
+
+CONSULTAR TABLAS EXTERNAS
+/*---en system---*/
+
+SELECT table_name
+FROM dba_external_tables
+WHERE owner = 'DULCERIA';
+
+/*---en dulceria---*/
+
+SELECT table_name
+  FROM all_external_tables
+  WHERE owner = 'DULCERIA';

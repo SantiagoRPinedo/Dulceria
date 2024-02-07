@@ -1,0 +1,31 @@
+python -m venv venv
+. venv/Scripts/activate
+$env:FLASK_APP= 'proyecto'      
+$env:FLASK_DEBUG = "True" 
+$env:SECRET_KEY="mikey"
+
+Trigger: Ubicado al agregar detalle, se descuentan productos
+Funcion: La funcion tambien esta en ventas para recuperar el total vendido en x fechas
+Procedimiento: Ubicado en clientes para actualizar la deuda total de cada uno
+
+Objeto Cliente en tabla de clientes.
+
+usar sql loader
+
+uso del paquete en el insert de productos
+pkg_secuencias
+
+CONSULTAR TABLAS EXTERNAS
+/*---en system---*/
+
+SELECT table_name
+FROM dba_external_tables
+WHERE owner = 'DULCERIA';
+
+/*---en dulceria---*/
+
+SELECT table_name
+  FROM all_external_tables
+  WHERE owner = 'DULCERIA';
+
+sqlldr USERID=dulceria/123@xepdb1 CONTROL=E:\todo\2023A\BasesDeDatos\Proyecto\proyecto\Static\deudas.ctl LOG=E:\todo\2023A\BasesDeDatos\Proyecto\proyecto\Static\deudas.log DIRECT=TRUE

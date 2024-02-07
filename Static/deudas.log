@@ -1,0 +1,65 @@
+
+SQL*Loader: Release 21.0.0.0.0 - Production on Sáb Jun 10 10:44:25 2023
+Version 21.3.0.0.0
+
+Copyright (c) 1982, 2021, Oracle and/or its affiliates.  All rights reserved.
+
+Archivo de Control:   E:\todo\2023A\BasesDeDatos\Proyecto\proyecto\Static\deudas.ctl
+Archivo de Datos:      E:\todo\2023A\BasesDeDatos\Proyecto\proyecto\Static\deudas.dat
+  Archivo de Errores:     E:\todo\2023A\BasesDeDatos\Proyecto\proyecto\Static\deudas.bad
+  Desechar Archivo:  ninguno especificado
+ 
+ (Permitir todos los registros desechados)
+
+Número que cargar: 250000
+Número que omitir: 1
+Errores permitidos: 0
+Continuación:    ninguno especificado
+Ruta de acceso utilizada:      Directa
+
+Tabla DEUDAS, cargada de cada registro lógico.
+Opción INSERT activa para esta tabla: APPEND
+Opción TRAILING NULLCOLS activada
+
+   Nombre Columna                  Posición   Long  Term Entorno Tipo de Dato
+------------------------------ ---------- ----- ---- ---- ---------------------
+ID_DEUDA                            FIRST     *   |       CHARACTER            
+CLIENTE_ID                           NEXT     *   |       CHARACTER            
+MONTO                                NEXT     *   |       CHARACTER            
+FECHA_DEUDA                          NEXT     *   |       DATETIME YYYY-MM-DD HH24:MI:SS.FF
+PAGADA                               NEXT     *   |       CHARACTER            
+
+Se han procesado los siguientes índices en la tabla DEUDAS:
+el índice DULCERIA.SYS_C008537 no se puede utilizar debido a:
+ORA-00001: restricción única (DULCERIA.SYS_C008537) violada
+ORA-39828: La restricción SYS_C008537 estaba desactivada debido a un error del índice DULCERIA.SYS_C008537.
+
+Tabla DEUDAS:
+  9 Filas cargadas correctamente.
+  0 Filas no cargadas debido a errores de datos.
+  0 Filas no cargadas porque todas las cláusulas WHEN han fallado.
+  0 Filas no cargadas porque todos los campos eran nulos.
+
+  Caché de Fechas:
+   Tamaño Máximo:      1000
+   Entradas :         9
+   Aciertos    :         0
+   Faltas  :         0
+
+Tamaño de matriz de enlace no utilizado en ruta de acceso directa.
+Filas de la matriz de columnas:    5000
+Bytes de buffer de flujo:  256000
+Bytes de buffer de lectura:10485760
+
+Total de registros lógicos omitidos:          1
+Total de registros lógicos leídos:           9
+Total de registros lógicos rechazados:         0
+Total de registros lógicos desechados:        0
+El thread principal de SQL*Loader ha cargado los buffers de flujo total:        2
+El thread de carga de SQL*Loader ha cargado los buffers de flujo total:        0
+
+La ejecución empezó en Sáb Jun 10 10:44:25 2023
+La ejecución terminó en Sáb Jun 10 10:44:25 2023
+
+Tiempo transcurrido:     00:00:00.13
+Tiempo de CPU:         00:00:00.03
