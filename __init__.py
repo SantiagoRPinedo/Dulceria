@@ -9,7 +9,7 @@ def create_app():
    )
 
 
-   import funcionamiento as funcionamiento
+   from . import funcionamiento
 
    app.register_blueprint(funcionamiento.bp)
 

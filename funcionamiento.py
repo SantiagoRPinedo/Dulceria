@@ -1,6 +1,6 @@
 import json
-import Validaciones
-import baseDatos as baseDatos
+from . import Validaciones
+from . import baseDatos as baseDatos
 import functools
 from flask import(
     Blueprint,flash, g, jsonify, render_template, request, url_for, session,Response,redirect
