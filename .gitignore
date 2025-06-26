@@ -1,0 +1,41 @@
+venv/
+.env
+
+*.pyc
+__pycache__/
+
+instance/
+# Entorno Virtual de Python
+.venv/
+venv/
+venv.bak/
+*/venv/
+
+# Archivos de caché de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos de configuración de IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Archivos de sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de entorno (para futuras variables de entorno como claves de API)
+.env
+.env.*
+
+# Otros
+*.log
+*.pot
+*.pyc
+entorno.txt

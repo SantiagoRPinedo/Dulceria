@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+{% block content%}
+    <div class="container">
+        <!--REGISTRAR LAS VENTAS-->
+        <div class="row align-items-start">
+            <div class="col" id="colVen">
+                <div class="ventas">
+                    <H1>Ventas</H1>
+                    <!--TABLA PARA LOS ELEMENTOS DE LAS VENTAS-->
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Vendido</th>
+                            <th scope="col">Fecha</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {%for i in consulta%}
+                            <tr>
+                                <th scope="row">{{i[0]}}</th>
+                                <td>{{i[2]}}</td>
+                                <td>{{i[3]}} $</td>
+                                <td>{{i[1]}}</td>
+                                <td>
+                                    <form method="POST" class="detalle-form">
+                                        <button type="submit"  id="presionado" name="presionado" value="{{i[0]}}" onclick="mostrarCampo()">Consultar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {%endfor%}
+                        </tbody>
+                    </table>
+                    <div class="btn-venta row align-items-start">
+                        <form  action="/ventas" method="POST">
+                            <div class="row row-cols-2 ">
+                                <div>
+                                    <label for="validationCustom01" class="form-label">Total</label>
+                                    <input type="text" class="form-control" id="validationCustom01" placeholder="10000" name="total" required>
+                                    <div class="valid-feedback">
+                                        Que buena suma :0
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="validationCustom02" class="form-label">Cliente</label>
+                                    <br><br>
+                                    <select name="cliente" class="form-select" aria-label="Default select example">
+                                        {% for n in clientes %}
+                                        <option value="{{n[1]}}"> {{n[1]}}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="valid-feedback">
+                                        Parece alguien de cultura uwu
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <input type="submit" name="rventa" value="Registrar Venta" id = "agre">
+                                </div>
+                                <div class="col">
+                                    <input type="button" id="btnDetalle" value="Agregar Detalle">
+                                </div>
+                            </div>
+                       </form>
+                    </div>
+                </div>
+            </div>
+            <!--TABLA PARA LA CONSULTA-->
+            <div class="col" id="colCons">
+                <div class="row align-items-start">
+                    <div class="col" id="colCons">
+                        <div class="consulta" >
+                            <H1>Consulta</H1>
+                            <table class="table" id="consultaD" >
+                                <thead>
+                                <tr>
+                                    <th scope="col">ID venta</th>
+                                    <th scope="col">Cliente</th>
+                                    <th scope="col">Dulce</th>
+                                    <th scope="col">Cantidad</th>
+                                    <th scope="col">Total x Cantidad</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {% for x in mensaje%}
+                                        <tr>
+                                            <th scope="row">{{x[1]}}</th>
+                                            <td>{{x[2]}}</td>
+                                            <td>{{x[3]}}</td>
+                                            <td>{{x[4]}}</td>
+                                            <td>{{x[5]}}$</td>
+                                        </tr>
+                                    {% endfor%}
+                                </tbody>
+                            </table>
+                            <p>Total de venta: {{total[0]}}$</p>
+                        </div>
+                    </div>
+                    <!--Fila para mostrar el calendario-->
+                    <div class="col" id="colCons">
+                        <div id="calendarioContainer" class="consulta" >
+                        </div>
+                    </div>
+                    <!--FIN Fila para mostrar el calendario-->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div id="myModal" class="modal">
+        <!-- Contenido del modal -->
+            <div class="container text center" id="modal_content">
+                <span class="close">&times;</span>
+                <br>
+                <form id="form-venta" class="row g-3 needs-validation" method="post"  action="/ventas" novalidate>
+                    <p id="ridVenta" name="ridVenta" style ="display:none;"></p>
+                    <p id="rproducto" name="rproducto" style ="display:none;"></p>
+                    <p id="rcantidad" name="rcantidad" style ="display:none;"></p>
+                    <p id="rprecio" name="rcantidad" style ="display:none;"></p>
+                    <h1>Productos</h1>
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <label>ID venta</label>
+                            <select  id="idVenta" class="form-select" name="ventaD" aria-label="Default select example" style="color:blueviolet">
+                                {% for consulta in consulta %}
+                                  <option value="{{ consulta[0]}}">{{ consulta[0] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label> </label>
+                            <input type="number" class="form-control" id="cantidad" placeholder=cantidad name="cantidad" required>
+                            <div class="valid-feedback">
+                                2
+                            </div>
+                        </div>
+                        <div class="col">
+                            <label>Producto</label>
+                            <select  id="producto" name="producto" class="form-select" onchange="actualizarSelect2()" aria-label="Default select example" style="color:blueviolet">
+                                {% for consultap in consultap %}
+                                  <option value="{{ consultap[1]}}">{{ consultap[0] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label></label>
+                            <input type="text" class="form-control" id="precio" name="precio" aria-label="Default select example" required readonly/>
+                            <div class="valid-feedback">
+                                5,000$
+                            </div>
+                        </div>
+                        <div class="col">
+                            <label> </label>
+                            <button type="submit" class="btn btn-primary" name="rdetalle" value="Rdetalle" onclick="agregarProducto()">Agregar Producto</button>
+                        </div>
+                    </div>
+                    <!--
+                    <table id="tproductos" class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">ID venta</th>
+                            <th scope="col">ID producto</th>
+                            <th scope="col">Cantidad</th>
+                            <th scope="col">Precio</th>
+                            <th scope="col">Eliminar</th> 
+                          </tr>
+                        </thead>
+                        <tbody>
+                          Crece dinamicamente la tabla
+                        </tbody>
+                      </table>
+                    -->
+                </form>
+            </div>
+    </div>
+    <!--PARA EL CALENDARIO DE FORMULARIO-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+          $.ajax({
+            url: '/ruta_al_archivo_html_del_calendario',
+            type: 'GET',
+            success: function(data) {
+              $('#calendarioContainer').html(data);
+            }
+          });
+        });
+      </script>          
+    <!--FIN DE LO QUE ES PARA EL CALENDARIO DE FORMULARIO-->
+    <script>
+        // Obtener el modal
+        var modal = document.getElementById("myModal");
+
+        // Obtener el botón que abre el modal
+        var btn = document.getElementById("btnDetalle");
+
+        // Obtener el botón que cierra el modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // Cuando el usuario hace clic en el botón, se muestra el modal
+        btn.onclick = function() {
+        modal.style.display = "block";
+        }
+
+        // Cuando el usuario hace clic en el botón "cerrar", se oculta el modal
+        span.onclick = function() {
+        modal.style.display = "none";
+        }
+
+        // Cuando el usuario hace clic fuera del modal, se oculta el modal
+        window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+        }
+    </script>
+    <script>
+        function submitForm(event) {
+        // Evitar que el formulario se envíe automáticamente
+        event.preventDefault();
+        }
+        function mostrarCampo() {
+            var campo = document.getElementById("consultaD");
+            if (campo.style.display === "none") {
+                campo.style.display = "block";
+                event.preventDefault();
+            } 
+        }
+        function agregarProducto() {
+            //Obtener el txt del detalle
+            var rventa = document.getElementById("ridVenta");
+            var rproducto = document.getElementById("rproducto");
+            var rcantidad = document.getElementById("rcantidad");
+            var rprecio = document.getElementById("rprecio");
+            // Obtener los valores ingresados por el usuario
+            var venta = document.getElementById("idVenta").value;
+            var producto = document.getElementById("producto").value;
+            var cantidad = document.getElementById("cantidad").value;
+            var precio = document.getElementById("precio").value;
+            
+            // Crear una nueva fila en la tabla con los valores ingresados
+            var tabla = document.getElementById("tproductos");
+            var nuevaFila = tabla.insertRow(-1);
+            var celdaVenta = nuevaFila.insertCell(0);
+            var celdaProducto = nuevaFila.insertCell(1);
+            var celdaCantidad = nuevaFila.insertCell(2);
+            var celdaPrecio = nuevaFila.insertCell(3);
+            var celdaEliminar = nuevaFila.insertCell(4);
+            celdaVenta.innerHTML = venta;
+            celdaProducto.innerHTML = producto;
+            celdaCantidad.innerHTML = cantidad;
+            celdaPrecio.innerHTML = precio;
+            rventa.innerHTML =  venta;
+            rproducto.innerHTML= producto;
+            rcantidad.innerHTML= cantidad;
+            rprecio.innerHTML = precio;
+        }
+
+        function eliminarFila(boton) {
+            // Obtener la fila a la que pertenece el botón y eliminarla
+            var fila = boton.parentNode.parentNode;
+            fila.parentNode.removeChild(fila);
+            }
+    </script> 
+    <script>
+        function actualizarSelect2() {
+          var select1 = document.getElementById("producto").value;
+          var select2 = document.getElementById("precio").value;
+          var cantidad = document.getElementById("cantidad").value;
+          console.log(select1);
+          console.log(select2);
+          // Actualizar las opciones del segundo select según el valor del primer select
+          if (select1 ==7) {//pikaros
+            document.getElementById("precio").value = 4 * cantidad;
+            console.log("Caldo de caca");
+          } else if (select1 == 1) { //bubulubu
+            document.getElementById("precio").value = 5* cantidad;
+          } else if (select1 ==5) {//Swincles
+            document.getElementById("precio").value = 12* cantidad;
+          }else if (select1 ==2) {//Mazapan
+            document.getElementById("precio").value = 5* cantidad;
+          }else if (select1 ==3) {//Llavecitas
+            document.getElementById("precio").value = 2.5* cantidad;
+          }else if (select1 ==4) {//Zumbagoma
+            document.getElementById("precio").value = 5* cantidad;
+          }else if (select1 ==6) {//Kitkat
+            document.getElementById("precio").value = 5* cantidad;
+          }
+          else if (select1 ==8) {//Cacahuates
+            document.getElementById("precio").value = 4* cantidad;
+          }else if (select1 ==9) {//Bocadin
+            document.getElementById("precio").value = 3* cantidad;
+          }else if (select1 ==10) {//Bocadin
+            document.getElementById("precio").value = 1* cantidad;
+          }
+        }
+      </script>
+
+    
+
+{%endblock%}

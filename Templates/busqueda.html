@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content%}
+    <div class="container text center ventas">
+        <H1>Tu busqueda</H1>
+        <table class="table">
+            <thead>
+                <tr>
+                    {%for i in consulta%}
+                        {% if i[5] =='deuda' %}
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Monto de Deuda</th>
+                            <th scope="col">Pagado</th>
+                        {% else%}
+                            <th scope="col">Dulce</th>
+                            <th scope="col">Costo</th>
+                            <th scope="col">Disponibles</th>
+                        {% endif %}
+                    {%endfor%}
+                </tr>
+            </thead>
+            <tbody>
+            {%for i in consulta%}
+                <tr>
+                    {% if i[5] =='deuda' %}
+                        <th scope="row">{{i[0]}}</th>
+                        <td>{{i[1]}}$</td>
+                        <td>{{i[4]}}</td>
+                    {% else%}
+                        <th scope="row">{{i[0]}}</th>
+                        <td>{{i[2]}}$</td>
+                        <td>{{i[3]}}</td>
+                    {% endif %}
+                </tr>
+            {%endfor%}
+            </tbody>
+        </table>
+    </div>
+{%endblock%}

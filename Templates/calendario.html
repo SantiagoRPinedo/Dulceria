@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% block content%}
+<body>
+  <h1>Ganancias por tiempo</h1>
+  <div id="calendar" class="calendar">
+      <div class="row row-cols-3 cabecera">
+        <div class="col">
+          <button id="prev-button" class="btncalendario"><</button>
+        </div>
+        <div class="col">
+          <span id="current-month" class="spcalendario"></span>  
+        </div>
+        <div class="col">
+          <button id="next-button" class="btncalendario">></button>
+        </div>
+      </div>
+    <table class="calendar-table">
+      <thead>
+        <tr>
+          <th>D</th>
+          <th>L</th>
+          <th>M</th>
+          <th>M</th>
+          <th>J</th>
+          <th>V</th>
+          <th>S</th>
+        </tr>
+      </thead>
+      <tbody id="calendar-body"></tbody>
+    </table>
+  </div>
+  <div>
+    <form method="post" id="calendarioPost">
+      <div class="row row-cols-2 ">
+          <div class = "col lblcalendario">
+            <label for="date-input">Fecha 1:</label>
+            <input type="text" id="date-input1" name="date-input1" readonly>
+          </div>
+          <div class = "col lblcalendario">
+            <label for="date-input">Fecha2:</label>
+            <input type="text" id="date-input2" name="date-input2" readonly>
+          </div>
+      </div> 
+      <div>
+        <p>Total en ese periodo de tiempo: {{vendido}}$</p>
+      </div>
+      <div>
+        <input type="submit" id="date-button" name="date-button" class="slccalendario" value="Seleccionar fechas"></Input>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    var currentDate = new Date(); // Obtener la fecha actual
+    var selectedDate = null; // Fecha seleccionada
+
+    var calendarBody = document.getElementById('calendar-body');
+    var currentMonthLabel = document.getElementById('current-month');
+    var dateInput1 = document.getElementById('date-input1');
+    var dateInput2 = document.getElementById('date-input2');
+    var dateButton = document.getElementById('date-button');
+    var prevButton = document.getElementById('prev-button');
+    var nextButton = document.getElementById('next-button');
+    var clicks = 0;
+
+    // Actualizar el calendario
+    function updateCalendar() {
+      var year = currentDate.getFullYear();
+      var month = currentDate.getMonth();
+      var firstDay = new Date(year, month, 1).getDay();
+      var daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      // Limpiar el contenido del calendario
+      calendarBody.innerHTML = '';
+
+      // Mostrar el mes y el año actual
+      currentMonthLabel.textContent = new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' });
+
+      // Rellenar el calendario con los días del mes
+      var date = 1;
+      for (var i = 0; i < 6; i++) {
+        var row = document.createElement('tr');
+
+        for (var j = 0; j < 7; j++) {
+          if (i === 0 && j < firstDay) {
+            // Celdas vacías antes del primer día del mes
+            var cell = document.createElement('td');
+            row.appendChild(cell);
+          } else if (date > daysInMonth) {
+            //
+          // Celdas vacías después del último día del mes
+          var cell = document.createElement('td');
+          row.appendChild(cell);
+        } else {
+          // Celdas con los días del mes
+          var cell = document.createElement('td');
+          cell.textContent = date;
+          cell.addEventListener('click', selectDate);
+          row.appendChild(cell);
+
+          // Agregar clase "calendar-selected" a la celda si coincide con la fecha seleccionada
+          if (selectedDate && date === selectedDate.getDate() && month === selectedDate.getMonth() && year === selectedDate.getFullYear()) {
+            cell.classList.add('calendar-selected');
+          }
+
+          date++;
+        }
+      }
+
+      calendarBody.appendChild(row);
+    }
+  }
+
+  // Función para seleccionar una fecha
+  function selectDate(event) {
+    var day = parseInt(event.target.textContent);
+    var year = currentDate.getFullYear();
+    var month = currentDate.getMonth();
+
+    // Crear la fecha seleccionada
+    selectedDate = new Date(year, month, day);
+    if (dateInput1.value== ""){
+      // Actualizar la entrada de texto con la fecha seleccionada
+      dateInput1.value = selectedDate.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+      clicks = clicks + 1;
+    }else if (dateInput1.value != "" && dateInput2.value == ""){
+      dateInput2.value = selectedDate.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+      clicks = clicks + 1;
+    }else if (clicks<=3){
+      clicks = clicks + 1;
+    }else{
+      dateInput1.value="";
+      dateInput2.value="";
+    }
+  }
+
+  // Función para avanzar al siguiente mes
+  function nextMonth() {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    updateCalendar();
+  }
+
+  // Función para retroceder al mes anterior
+  function prevMonth() {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    updateCalendar();
+  }
+
+  // Event listeners para los botones de navegación
+  nextButton.addEventListener('click', nextMonth);
+  prevButton.addEventListener('click', prevMonth);
+
+  // Actualizar el calendario al cargar la página
+  updateCalendar();
+</script>
+</body>
+{%endblock%}
